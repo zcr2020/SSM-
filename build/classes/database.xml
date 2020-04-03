@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans  xmlns="http://www.springframework.org/schema/beans" 
+        xmlns:context="http://www.springframework.org/schema/context" 
+        xmlns:aop="http://www.springframework.org/schema/aop" 
+        xmlns:tx="http://www.springframework.org/schema/tx"  
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"   
+        xsi:schemaLocation="http://www.springframework.org/schema/beans 
+        http://www.springframework.org/schema/beans/spring-beans-4.3.xsd  
+        http://www.springframework.org/schema/context   
+        http://www.springframework.org/schema/context/spring-context-4.3.xsd 
+        http://www.springframework.org/schema/aop  
+        http://www.springframework.org/schema/aop/spring-aop-4.3.xsd  
+        http://www.springframework.org/schema/tx 
+        http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+        <!-- 配置数据源 -->
+        <bean id="datasource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        	<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+        	<property name="url" value="jdbc:mysql://localhost:3306/mybookshop" />
+        	<property name="username" value="ruanjian18" />
+        	<property name="password" value="123456" />
+        </bean>
+        <!-- 配置JdbcTemplate -->
+        <bean id="jdbcTemplate"  class="org.springframework.jdbc.core.JdbcTemplate">
+        	<property name="dataSource" ref="datasource" />
+        </bean>
+        <!-- 配置事务管理器 -->
+        <bean  id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        	<property name="dataSource" ref="datasource" />
+        </bean>
+        <!-- 启用事务管理注解 -->
+        <tx:annotation-driven transaction-manager="transactionManager"/>
+        <!-- 配置事务增强 -->
+        <tx:advice id="txAdvie" transaction-manager="transactionManager">
+              <tx:attributes>
+                  <tx:method name="*" propagation="REQUIRED" isolation="DEFAULT" read-only="false"/>
+              </tx:attributes>
+        </tx:advice>
+        <!-- 用声明式AspectJ-->
+        <aop:config>
+            
+            <aop:pointcut expression="execution(* com.chap501.dao.impl.*.*(..))" id="txPointCut"/>
+            <aop:advisor advice-ref="txAdvie" pointcut-ref="txPointCut"/>
+        </aop:config> 
+</beans>
